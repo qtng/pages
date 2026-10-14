@@ -1,4 +1,4 @@
-@import url(https://qatt.org/chunom-assets/fonts/fonts.css);
+@import url(/chunom-assets/fonts/fonts.css);
 :root { --ink: #2b2118; --accent: #a8362a; --paper: #fffdf8; --line: #e4d9c0; --muted: #7b6c58; }
 body { margin: 0; padding-top: 60px; /* the fixed menu bar of navigation.js */ background: var(--paper); color: var(--ink); font: 1rem/1.55 system-ui, sans-serif; }
 main, footer { max-width: 44rem; margin: 0 auto; padding: .75rem 1rem; }
