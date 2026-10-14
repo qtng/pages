@@ -50,7 +50,7 @@ def read(path):
 
 NAV_HEAD = ['<script src="/pages/site.js"></script>',   # site-wide script (docs/site.js), empty for now
             f'<link rel="stylesheet" href="{QATT}/vendor/bootstrap/css/bootstrap.min.css">']   # the menu bar of the site (navigation.js) needs Bootstrap
-NAV_SCRIPT = '<script defer src="/chunom/js/navigation.js"></script>'
+NAV_SCRIPT = '<script src="https://qatt.org/js/navigation.js"></script>'   # the one navigation.js of both sites (menu and translation), early in the head
 esc = lambda text: html.escape(str(text), quote=True)
 hexcode = lambda ch: f'{ord(ch):X}'
 rows = [r for r in csv.reader(io.StringIO(read('dict.csv'))) if len(r) >= 3]
