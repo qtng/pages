@@ -8,7 +8,7 @@ dict.csv and js/glyph_relations.json, read from a local checkout or, by default,
   python3 tools/generate.py --chunom ../chunom        data from a local checkout of qtng/chunom
   python3 tools/generate.py --assets ../chunom-assets only link images that exist in a local checkout of qtng/chunom-assets
 
-The generated folders (docs/<HEX>/, docs/grade/, sitemap.xml, index.html) are overwritten; style.css and the hand-written pages (docs/pa/, docs/fonts/, docs/links/) stay. REDIRECTS lists the old addresses that only forward.
+The generated folders (docs/<HEX>/, docs/grade/, sitemap.xml, index.html) are overwritten; style.css and the hand-written pages (docs/pa/, docs/pa-editor/, docs/fonts/, docs/links/) stay. REDIRECTS lists the old addresses that only forward.
 """
 import argparse, csv, re, html, io, json, shutil, urllib.parse, urllib.request
 from pathlib import Path
@@ -230,7 +230,7 @@ shutil.rmtree(DOCS / 'grade', ignore_errors=True)
 for number in GRADES:
     (DOCS / 'grade' / number).mkdir(parents=True)
     (DOCS / 'grade' / number / 'index.html').write_text(grade_page(number), encoding='utf-8')
-urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/', f'{BASE}/links/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
+urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/', f'{BASE}/links/', f'{BASE}/pa-editor/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
 (DOCS / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                   + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 print(f'{len(chars)} pages written to {DOCS}')

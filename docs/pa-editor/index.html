@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phonetic Annotation Editor - Chunom.org</title>
+<meta name="description" content="Type Vietnamese and see it in Phonetic Annotation (PA), the Hán Nôm based pronunciation script. Horizontal or vertical, several backgrounds.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://qatt.org/pages/pa-editor/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Chunom.org">
+<meta property="og:title" content="Phonetic Annotation Editor - Chunom.org">
+<meta property="og:description" content="Type Vietnamese and see it in Phonetic Annotation.">
+<script src="https://qatt.org/pages/site.js"></script>
+<link rel="stylesheet" href="https://qatt.org/qatt/vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="editor.css">
+<script defer src="https://qatt.org/qatt/js/navigation.js"></script>
+</head>
+<body>
+<main>
+<p class="crumbs"><a href="../">Chữ Nôm characters</a> · <a href="../pa/">Phonetic Annotation</a></p>
+<h1 class="list">Phonetic Annotation Editor</h1>
+<div id="edit-wrapper" class="beige"><div id="edit"></div></div>
+<textarea id="in" rows="8" placeholder="Type here!"></textarea>
+<p class="controls">
+<input id="zoom" type="range" value="200" min="100" max="500" step="1" aria-label="Size">
+<label><input id="vertical" type="checkbox"> Vertical</label>
+<select id="background" aria-label="Background">
+<option value="beige">Beige</option>
+<option value="gray">Grey</option>
+<option value="sticker black">Multicolor</option>
+<option value="white">White</option>
+<option value="black">Black</option>
+</select>
+</p>
+<noscript><p>This editor needs JavaScript.</p></noscript>
+</main>
+<footer>Chunom.org</footer>
+<script src="converter.js"></script>
+<script>
+  var input = document.getElementById('in'), edit = document.getElementById('edit'), wrapper = document.getElementById('edit-wrapper');
+  function update() {
+    if (input.value != '' || edit.innerHTML.length < 5) edit.innerHTML = '';
+    conv(input.value, 'edit');
+  }
+  input.addEventListener('input', update);
+  document.getElementById('zoom').addEventListener('input', function () { wrapper.style.zoom = (this.value / 2) + '%'; });
+  document.getElementById('vertical').addEventListener('change', function () { wrapper.classList.toggle('vertical', this.checked); });
+  document.getElementById('background').addEventListener('change', function () { wrapper.className = this.value + (wrapper.classList.contains('vertical') ? ' vertical' : ''); });
+  conv('trăm năm trong cõi người ta\nchữ tài chữ mệnh khéo là ghét nhau\ntrải qua một cuộc bể dâu\nnhững điều trông thấy mà đau đớn lòng', 'edit');
+</script>
+</body>
+</html>

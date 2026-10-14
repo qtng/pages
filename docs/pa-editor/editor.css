@@ -1,0 +1,16 @@
+/* Phonetic Annotation editor */
+@font-face { font-family: pa-annotation; src: url(../pa/pa.woff2) format('woff2'), url(../pa/pa.ttf) format('truetype'); }
+#edit-wrapper { font-family: pa-annotation, 'Han-Nom Gothic Supplement', sans-serif; font-size: 1.15em; font-weight: 600; padding: .75em; max-height: 17em; overflow: auto; text-orientation: upright; display: flex; align-items: flex-end; border: 1px solid var(--line); border-radius: .5rem; margin: 1rem 0; }
+#edit { width: 100%; overflow-wrap: break-word; }
+@media (min-width: 1000px) { #edit-wrapper { font-size: 1.7em; } }
+.vertical { font-size: 1.3em !important; writing-mode: vertical-rl; }
+.vertical .fw-space { display: none; }
+.beige { background: beige; color: rgba(0, 0, 0, .8); }
+.gray { background: #ddd; color: rgba(0, 0, 0, .8); }
+.white { background: #fff; color: #000; }
+.black { background: #000; color: #fff; }
+#in { width: 100%; font-family: pa-annotation, sans-serif; font-size: 1em; }
+.controls { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: center; margin-top: .75rem; }
+.controls input[type=range] { flex: 1 1 10rem; }
+.sticker { --c1: #ef548f; --c2: #ef8b6d; --c3: #cfef6b; --c4: #3bf0c1; --c5: #bb4af0; background: linear-gradient(to right, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; -webkit-text-stroke: .01em rgba(0, 0, 0, .6); }
+.black.sticker { background-color: #000; }
