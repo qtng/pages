@@ -2,9 +2,9 @@
 """Generates the static landing pages of the characters: docs/<HEX>/index.html, docs/index.html (index), docs/grade/<N>/index.html (lists), docs/sitemap.xml.
 
 The pages are plain HTML with the shared docs/style.css (no scripts). The data comes from the chunom repository:
-dict.csv and js/glyph_relations.json, read from a local checkout or, by default, from https://qatt.org/chunom/.
+dict.csv and js/glyph_relations.json, read from a local checkout or, by default, from the site itself (--site, default https://v2.chunom.org).
 
-  python3 tools/generate.py                          data from qatt.org
+  python3 tools/generate.py                          data from the site (--site)
   python3 tools/generate.py --chunom ../chunom        data from a local checkout of qtng/chunom
   python3 tools/generate.py --assets ../chunom-assets only link images that exist in a local checkout of qtng/chunom-assets
 
@@ -13,13 +13,11 @@ The generated folders (docs/<HEX>/, docs/grade/, sitemap.xml, index.html) are ov
 import argparse, csv, re, html, io, json, shutil, urllib.parse, urllib.request
 from pathlib import Path
 
-SITE = 'https://qatt.org'
-BASE = f'{SITE}/pages'                    # where docs/ is published
-APP = f'{SITE}/chunom/index.html'         # the dictionary with the popup (?detail=)
-IMAGES = f'{SITE}/chunom-assets/generated'   # <size>/<HEX>.webp: many characters are in no font, so they are shown as images like in the dictionary
+QATT = 'https://qatt.org'                  # the other site: Bootstrap comes from there
+   # <size>/<HEX>.webp: many characters are in no font, so they are shown as images like in the dictionary
 SITE_NAME = 'Chunom.org'
 KINDS = {'v': 'Variant', 's': 'Simplified', 't': 'Traditional'}
-# Old addresses of chunom.org (/pages/<name>/) that now live elsewhere: name -> target (relative to https://qatt.org/)
+# Old addresses of chunom.org (/pages/<name>/) that now live elsewhere: name -> target (relative to the site)
 REDIRECTS = {
     'genibrel': 'chunom/dict/genibrel.html',
     'bonet': 'chunom/dict/bonet.html',
@@ -33,9 +31,14 @@ _unused = Path(__file__).resolve().parent.parent
 DOCS = ROOT / 'docs'
 
 ap = argparse.ArgumentParser()
-ap.add_argument('--chunom', help='local checkout of qtng/chunom (default: download from qatt.org)')
+ap.add_argument('--site', default='https://v2.chunom.org', help='address of the site, https://chunom.org when it is live (default: %(default)s)')
+ap.add_argument('--chunom', help='local checkout of qtng/chunom (default: download from the site)')
 ap.add_argument('--assets', help='local checkout of qtng/chunom-assets (default: assume every image exists)')
 args = ap.parse_args()
+SITE = args.site.rstrip('/')               # the address of the site: canonicals, og:image and the sitemap need it; everything else is root-relative
+BASE = f'{SITE}/pages'                     # where docs/ is published
+APP = '/chunom/index.html'                 # the dictionary with the popup (?detail=)
+IMAGES = '/chunom-assets/generated'        # <size>/<HEX>.webp: many characters are in no font, so they are shown as images like in the dictionary
 
 
 def read(path):
@@ -45,9 +48,9 @@ def read(path):
         return response.read().decode('utf-8')
 
 
-NAV_HEAD = [f'<script src="{BASE}/site.js"></script>',   # site-wide script (docs/site.js), empty for now
-            f'<link rel="stylesheet" href="{SITE}/qatt/vendor/bootstrap/css/bootstrap.min.css">']   # the menu bar of the site (navigation.js) needs Bootstrap
-NAV_SCRIPT = f'<script defer src="{SITE}/qatt/js/navigation.js"></script>'
+NAV_HEAD = ['<script src="/pages/site.js"></script>',   # site-wide script (docs/site.js), empty for now
+            f'<link rel="stylesheet" href="{QATT}/vendor/bootstrap/css/bootstrap.min.css">']   # the menu bar of the site (navigation.js) needs Bootstrap
+NAV_SCRIPT = '<script defer src="/chunom/js/navigation.js"></script>'
 esc = lambda text: html.escape(str(text), quote=True)
 hexcode = lambda ch: f'{ord(ch):X}'
 rows = [r for r in csv.reader(io.StringIO(read('dict.csv'))) if len(r) >= 3]
@@ -114,7 +117,7 @@ def page(ch):
             facts.append((label, f'#{value}' if label == 'Frequency' else value))
     og = [('og:type', 'article'), ('og:site_name', SITE_NAME), ('og:title', title), ('og:description', description), ('og:url', url)]
     if big:
-        og.append(('og:image', f'{IMAGES}/160/{code}.webp'))
+        og.append(('og:image', f'{SITE}{IMAGES}/160/{code}.webp'))
 
     lines = [
         '<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">',
@@ -233,4 +236,10 @@ for number in GRADES:
 urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/', f'{BASE}/links/', f'{BASE}/pa-editor/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
 (DOCS / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                   + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
+# the hand-written pages hold the address of the site in canonical, og:url and a bookmarklet: set it to --site
+for page in ('pa', 'pa-editor', 'fonts', 'links'):
+    path = DOCS / page / 'index.html'
+    text = path.read_text(encoding='utf-8')
+    old = re.search(r'rel="canonical" href="(https?://[^/"]+)', text).group(1)
+    path.write_text(text.replace(old, SITE), encoding='utf-8')
 print(f'{len(chars)} pages written to {DOCS}')
