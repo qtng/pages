@@ -1,0 +1,23 @@
+/* Phonetic Annotation page: the glyphs of the font "pa" (fonts.css of chunom-assets) sit in the private use area */
+.center { text-align: center; }
+.pa { font-family: pa, 'Han-Nom Gothic Supplement', serif; font-size: 28px; padding: 0; }
+@media (min-width: 450px) { .pa { font-size: 32px; } }
+@media (min-width: 600px) { .pa { font-size: 34px; } }
+.blocks { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; width: 100%; }
+.blocks-col { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-left: 1.5rem; }
+.pablock { display: inline-block; margin-bottom: 1em; }
+.pablock h3 { font: 700 18px/1.4 sans-serif; }
+.c { color: var(--ink); }
+.v { color: #0d6efd; }
+.t { color: #dc3545; }
+rt { font-size: .8rem !important; }
+.shiftright ruby { width: 1em; margin: 0 7px 0 -7px; }
+.shiftright rt { margin-right: -16px; }
+.shiftleft ruby, ruby.shiftleft { width: 1em; margin: 0 -7px 0 7px; }
+.shiftleft rt { margin-left: 16px; }
+ruby.shiftright { width: 1em; margin: 0 7px 0 -7px; }
+tt { display: inline-block; padding: 0 .5em; }
+u { text-decoration: none; font-weight: 600; color: var(--accent); }
+.hannomgothic { font-family: 'Han-Nom Gothic Supplement', serif; font-size: 1rem; }
+.ex { display: inline-block; text-align: left; }
+.btn-link { display: inline-block; }

@@ -1,14 +1,15 @@
 @import url(https://qatt.org/chunom-assets/fonts/fonts.css);
 :root { --ink: #2b2118; --accent: #a8362a; --paper: #fffdf8; --line: #e4d9c0; --muted: #7b6c58; }
-body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.55 system-ui, sans-serif; }
-nav, main, footer { max-width: 44rem; margin: 0 auto; padding: .75rem 1rem; }
-nav { border-bottom: 1px solid var(--line); }
+body { margin: 0; padding-top: 60px; /* the fixed menu bar of navigation.js */ background: var(--paper); color: var(--ink); font: 1rem/1.55 system-ui, sans-serif; }
+main, footer { max-width: 44rem; margin: 0 auto; padding: .75rem 1rem; }
+.crumbs { margin: 0; font-size: .9rem; }
 footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); margin-top: 2rem; }
 a { color: var(--accent); }
 h1 { font-family: 'Nom Na Tong Supplement', 'Han-Nom Gothic Supplement', Georgia, serif; font-weight: 400; font-size: 5rem; line-height: 1.2; margin: .5rem 0 0; }
 h2 { font-family: Georgia, serif; font-weight: 400; font-size: 1.25rem; border-bottom: 1px solid var(--line); margin-top: 2rem; }
 .lead { font-size: 1.2rem; color: var(--muted); margin-top: 0; }
-img { display: block; border: 1px solid var(--line); border-radius: .5rem; }
+img.big { display: block; }
+img.g { display: inline-block; vertical-align: middle; width: 2rem; height: 2rem; }
 dl { display: grid; grid-template-columns: max-content 1fr; gap: .15rem 1rem; }
 dt { color: var(--muted); }
 dd { margin: 0; }
@@ -19,5 +20,6 @@ ul.chars a { font-family: 'Nom Na Tong Supplement', 'Han-Nom Gothic Supplement',
 h1.list { font-family: Georgia, serif; font-size: 2rem; }
 .grades { color: var(--muted); }
 ul.words { padding-left: 0; list-style: none; columns: 2 20rem; }
-ul.words li { break-inside: avoid; margin-bottom: .35rem; }
+ul.words li { break-inside: avoid; margin-bottom: .35rem; display: flex; align-items: center; gap: .6rem; }
+ul.words li > span[lang] { flex: none; white-space: nowrap; }
 ul.words a { text-decoration: none; }

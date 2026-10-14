@@ -8,7 +8,7 @@ dict.csv and js/glyph_relations.json, read from a local checkout or, by default,
   python3 tools/generate.py --chunom ../chunom        data from a local checkout of qtng/chunom
   python3 tools/generate.py --assets ../chunom-assets only link images that exist in a local checkout of qtng/chunom-assets
 
-The generated folders (docs/<HEX>/, sitemap.xml, index.html) are overwritten; style.css and the other files stay.
+The generated folders (docs/<HEX>/, docs/grade/, sitemap.xml, index.html) are overwritten; style.css and hand-written pages such as docs/pa/ stay.
 """
 import argparse, csv, re, html, io, json, shutil, urllib.parse, urllib.request
 from pathlib import Path
@@ -16,7 +16,7 @@ from pathlib import Path
 SITE = 'https://qatt.org'
 BASE = f'{SITE}/pages'                    # where docs/ is published
 APP = f'{SITE}/chunom/index.html'         # the dictionary with the popup (?detail=)
-IMAGE = f'{SITE}/chunom-assets/generated/160'
+IMAGES = f'{SITE}/chunom-assets/generated'   # <size>/<HEX>.webp: many characters are in no font, so they are shown as images like in the dictionary
 SITE_NAME = 'Chunom.org'
 KINDS = {'v': 'Variant', 's': 'Simplified', 't': 'Traditional'}
 ROOT = Path(__file__).resolve().parent.parent
@@ -35,6 +35,8 @@ def read(path):
         return response.read().decode('utf-8')
 
 
+NAV_HEAD = [f'<link rel="stylesheet" href="{SITE}/qatt/vendor/bootstrap/css/bootstrap.min.css">']   # the menu bar of the site (navigation.js) needs Bootstrap
+NAV_SCRIPT = f'<script defer src="{SITE}/qatt/js/navigation.js"></script>'
 esc = lambda text: html.escape(str(text), quote=True)
 hexcode = lambda ch: f'{ord(ch):X}'
 rows = [r for r in csv.reader(io.StringIO(read('dict.csv'))) if len(r) >= 3]
@@ -56,8 +58,22 @@ for variant, (kind, main) in relations.items():
     variants_of.setdefault(main, []).append((variant, kind))
 
 
+def has_image(ch):
+    if images is None:
+        return ch in by_char or ch in relations or ch in variants_of
+    return hexcode(ch) in images
+
+
+def glyph(ch, link=None):
+    """A character as a small image (alt = the character), or as text when there is no image."""
+    inner = esc(ch)
+    if has_image(ch):
+        inner = f'<img class="g" src="{IMAGES}/32/{hexcode(ch)}.webp" width="32" height="32" alt="{esc(ch)}" loading="lazy">'
+    return f'<a href="{link}">{inner}</a>' if link else inner
+
+
 def a(ch):
-    return f'<a href="../{hexcode(ch)}/" lang="vi">{esc(ch)}</a>' if ch in by_char else esc(ch)
+    return glyph(ch, f'../{hexcode(ch)}/' if ch in by_char else None)
 
 
 def page(ch):
@@ -68,7 +84,10 @@ def page(ch):
     title = f'{ch} - Chữ Nôm U+{code}: {readings[0]} - {first[2]}'
     compounds = words.get(ch, [])
     description = f'Vietnamese {ch} ({", ".join(readings)}) {first[2]}' + (' | ' + '| '.join(f'{r[1]} {r[0]}' for r in compounds[:8]) if compounds else '')
-    has_image = images is None or code in images
+    big = has_image(ch)
+    heading = esc(ch)
+    if big:
+        heading = f'<img class="big" src="{IMAGES}/160/{code}.webp" width="160" height="160" alt="{esc(ch)}">'
     related = []
     if ch in relations:
         kind, main = relations[ch]
@@ -83,8 +102,8 @@ def page(ch):
         if value:
             facts.append((label, f'#{value}' if label == 'Frequency' else value))
     og = [('og:type', 'article'), ('og:site_name', SITE_NAME), ('og:title', title), ('og:description', description), ('og:url', url)]
-    if has_image:
-        og.append(('og:image', f'{IMAGE}/{code}.webp'))
+    if big:
+        og.append(('og:image', f'{IMAGES}/160/{code}.webp'))
 
     lines = [
         '<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">',
@@ -92,19 +111,17 @@ def page(ch):
         f'<title>{esc(title)}</title>', f'<meta name="description" content="{esc(description)}">',
         '<meta name="robots" content="index,follow">', f'<link rel="canonical" href="{url}">',
         *[f'<meta property="{k}" content="{esc(v)}">' for k, v in og],
-        '<link rel="stylesheet" href="../style.css">', '</head>', '<body>',
-        f'<nav><a href="../">Chữ Nôm characters</a> · <a href="{APP}">Dictionary</a></nav>', '<main>',
-        f'<h1 lang="vi">{esc(ch)}</h1>',
+        *NAV_HEAD, '<link rel="stylesheet" href="../style.css">', NAV_SCRIPT, '</head>', '<body>',
+        '<main>', '<p class="crumbs"><a href="../">Chữ Nôm characters</a></p>',
+        f'<h1 lang="vi">{heading}</h1>',
         f'<p class="lead">{esc(readings[0])} – {esc(first[2])}</p>',
     ]
-    if has_image:
-        lines.append(f'<img src="{IMAGE}/{code}.webp" width="160" height="160" alt="{esc(ch)} ({esc(readings[0])})">')
     lines += ['<dl>', *[f'<dt>{k}</dt><dd>{esc(v)}</dd>' for k, v in facts], '</dl>']
     lines += ['<h2>Readings</h2>', '<ul>', *[f'<li><b>{esc(r[0])}</b> – {esc(r[2])}</li>' for r in entries], '</ul>']
     if related:
         lines += ['<h2>Related characters</h2>', '<ul class="chars">', *[f'<li>{a(c)} <small>{esc(k)}</small></li>' for c, k in related], '</ul>']
     if compounds:
-        lines += [f'<h2>Words with {esc(ch)}</h2>', '<ul>', *[f'<li><span lang="vi">{esc(r[1])}</span> <b>{esc(r[0])}</b> – {esc(r[2])}</li>' for r in compounds[:40]], '</ul>']
+        lines += [f'<h2>Words with {esc(ch)}</h2>', '<ul class="words">', *[f'<li><span lang="vi">{"".join(glyph(c) for c in r[1])}</span><span><b>{esc(r[0])}</b> – {esc(r[2])}</span></li>' for r in compounds[:40]], '</ul>']
     lines += [
         f'<p><a href="{APP}?detail={urllib.parse.quote(ch)}">Open {esc(ch)} in the dictionary</a> – with animation, audio and decks.</p>',
         f'<p><small>More: <a href="https://en.wiktionary.org/wiki/{urllib.parse.quote(ch)}">Wiktionary</a> · '
@@ -142,8 +159,8 @@ def grade_page(number):
     nav = ' · '.join(f'<a href="../{n}/">{esc(GRADES[n][0].replace(" Characters", ""))}</a>' if n != number else f'<b>{esc(GRADES[n][0].replace(" Characters", ""))}</b>' for n in GRADES)
     items = []
     for r in entries:
-        nom = ''.join(f'<a href="../../{hexcode(c)}/">{esc(c)}</a>' if c in by_char else esc(c) for c in r[1])
-        items.append(f'<li><span lang="vi">{nom}</span> <b>{esc(r[0])}</b> – {esc(r[2])}</li>')
+        nom = ''.join(glyph(c, f'../../{hexcode(c)}/' if c in by_char else None) for c in r[1])
+        items.append(f'<li><span lang="vi">{nom}</span><span><b>{esc(r[0])}</b> – {esc(r[2])}</span></li>')
     return '\n'.join([
         '<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -151,8 +168,8 @@ def grade_page(number):
         '<meta name="robots" content="index,follow">', f'<link rel="canonical" href="{BASE}/grade/{number}/">',
         f'<meta property="og:type" content="website"><meta property="og:site_name" content="{SITE_NAME}">',
         f'<meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}">',
-        '<link rel="stylesheet" href="../../style.css">', '</head>', '<body>',
-        f'<nav><a href="../../">Chữ Nôm characters</a> · <a href="{SITE}/chunom/">Dictionary</a></nav>', '<main>',
+        *NAV_HEAD, '<link rel="stylesheet" href="../../style.css">', NAV_SCRIPT, '</head>', '<body>',
+        '<main>', '<p class="crumbs"><a href="../../">Chữ Nôm characters</a></p>',
         f'<h1 class="list">{esc(heading)}</h1>', f'<p class="lead">{esc(text)} ({len(entries)} entries)</p>',
         f'<p class="grades">{nav}</p>', '<ul class="words">', *items, '</ul>', '</main>', f'<footer>{SITE_NAME}</footer>', '</body>', '</html>', ''])
 
@@ -168,12 +185,12 @@ def index():
         '<title>Chữ Nôm characters - Chunom.org</title>',
         f'<meta name="description" content="{len(chars)} Chữ Nôm characters with readings, meanings, variants and example words.">',
         '<meta name="robots" content="index,follow">', f'<link rel="canonical" href="{BASE}/">',
-        '<link rel="stylesheet" href="style.css">', '</head>', '<body>',
-        f'<nav><a href="{SITE}/chunom/">Dictionary</a></nav>', '<main>', '<h1 class="list">Chữ Nôm characters</h1>',
-        '<p class="grades">' + ' · '.join(f'<a href="grade/{n}/">{esc(g[0])}</a>' for n, g in GRADES.items()) + '</p>']
+        *NAV_HEAD, '<link rel="stylesheet" href="style.css">', NAV_SCRIPT, '</head>', '<body>',
+        '<main>', '<h1 class="list">Chữ Nôm characters</h1>',
+        '<p class="grades">' + ' · '.join(f'<a href="grade/{n}/">{esc(g[0])}</a>' for n, g in GRADES.items()) + ' · <a href="pa/">Phonetic Annotation</a></p>']
     for level in sorted(groups, key=lambda l: (l == '0', l)):
         lines += [f'<h2>{"Grade " + level if level != "0" else "Other characters"}</h2>', '<ul class="chars">']
-        lines += [f'<li><a href="{hexcode(ch)}/" lang="vi">{esc(ch)}</a> <small>{esc(by_char[ch][0][0])}</small></li>' for ch in groups[level]]
+        lines += [f'<li>{glyph(ch, hexcode(ch) + "/")} <small>{esc(by_char[ch][0][0])}</small></li>' for ch in groups[level]]
         lines.append('</ul>')
     lines += ['</main>', f'<footer>{SITE_NAME}</footer>', '</body>', '</html>', '']
     return '\n'.join(lines)
@@ -190,7 +207,7 @@ shutil.rmtree(DOCS / 'grade', ignore_errors=True)
 for number in GRADES:
     (DOCS / 'grade' / number).mkdir(parents=True)
     (DOCS / 'grade' / number / 'index.html').write_text(grade_page(number), encoding='utf-8')
-urls = [f'{BASE}/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
+urls = [f'{BASE}/', f'{BASE}/pa/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
 (DOCS / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                   + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 print(f'{len(chars)} pages written to {DOCS}')
