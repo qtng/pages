@@ -1,6 +1,7 @@
-/* Phonetic Annotation page: the glyphs of the font "pa" (fonts.css of chunom-assets) sit in the private use area */
+/* Phonetic Annotation page: the glyphs of the font pa.ttf (private use area U+E001..) */
+@font-face { font-family: pa-annotation; src: url(pa.woff2) format('woff2'), url(pa.ttf) format('truetype'); }
 .center { text-align: center; }
-.pa { font-family: pa, 'Han-Nom Gothic Supplement', serif; font-size: 28px; padding: 0; }
+.pa { font-family: pa-annotation, 'Han-Nom Gothic Supplement', serif; font-size: 28px; padding: 0; }
 @media (min-width: 450px) { .pa { font-size: 32px; } }
 @media (min-width: 600px) { .pa { font-size: 34px; } }
 .blocks { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; width: 100%; }
