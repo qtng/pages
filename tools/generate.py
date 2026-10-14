@@ -35,7 +35,8 @@ def read(path):
         return response.read().decode('utf-8')
 
 
-NAV_HEAD = [f'<link rel="stylesheet" href="{SITE}/qatt/vendor/bootstrap/css/bootstrap.min.css">']   # the menu bar of the site (navigation.js) needs Bootstrap
+NAV_HEAD = [f'<script src="{BASE}/site.js"></script>',   # site-wide script (docs/site.js), empty for now
+            f'<link rel="stylesheet" href="{SITE}/qatt/vendor/bootstrap/css/bootstrap.min.css">']   # the menu bar of the site (navigation.js) needs Bootstrap
 NAV_SCRIPT = f'<script defer src="{SITE}/qatt/js/navigation.js"></script>'
 esc = lambda text: html.escape(str(text), quote=True)
 hexcode = lambda ch: f'{ord(ch):X}'
@@ -187,7 +188,7 @@ def index():
         '<meta name="robots" content="index,follow">', f'<link rel="canonical" href="{BASE}/">',
         *NAV_HEAD, '<link rel="stylesheet" href="style.css">', NAV_SCRIPT, '</head>', '<body>',
         '<main>', '<h1 class="list">Chữ Nôm characters</h1>',
-        '<p class="grades">' + ' · '.join(f'<a href="grade/{n}/">{esc(g[0])}</a>' for n, g in GRADES.items()) + ' · <a href="pa/">Phonetic Annotation</a></p>']
+        '<p class="grades">' + ' · '.join(f'<a href="grade/{n}/">{esc(g[0])}</a>' for n, g in GRADES.items()) + ' · <a href="pa/">Phonetic Annotation</a> · <a href="fonts/">Fonts</a></p>']
     for level in sorted(groups, key=lambda l: (l == '0', l)):
         lines += [f'<h2>{"Grade " + level if level != "0" else "Other characters"}</h2>', '<ul class="chars">']
         lines += [f'<li>{glyph(ch, hexcode(ch) + "/")} <small>{esc(by_char[ch][0][0])}</small></li>' for ch in groups[level]]
@@ -207,7 +208,7 @@ shutil.rmtree(DOCS / 'grade', ignore_errors=True)
 for number in GRADES:
     (DOCS / 'grade' / number).mkdir(parents=True)
     (DOCS / 'grade' / number / 'index.html').write_text(grade_page(number), encoding='utf-8')
-urls = [f'{BASE}/', f'{BASE}/pa/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
+urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
 (DOCS / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                   + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 print(f'{len(chars)} pages written to {DOCS}')
