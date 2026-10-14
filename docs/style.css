@@ -1,0 +1,18 @@
+@import url(https://qatt.org/chunom-assets/fonts/fonts.css);
+:root { --ink: #2b2118; --accent: #a8362a; --paper: #fffdf8; --line: #e4d9c0; --muted: #7b6c58; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.55 system-ui, sans-serif; }
+nav, main, footer { max-width: 44rem; margin: 0 auto; padding: .75rem 1rem; }
+nav { border-bottom: 1px solid var(--line); }
+footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); margin-top: 2rem; }
+a { color: var(--accent); }
+h1 { font-family: 'Nom Na Tong Supplement', 'Han-Nom Gothic Supplement', Georgia, serif; font-weight: 400; font-size: 5rem; line-height: 1.2; margin: .5rem 0 0; }
+h2 { font-family: Georgia, serif; font-weight: 400; font-size: 1.25rem; border-bottom: 1px solid var(--line); margin-top: 2rem; }
+.lead { font-size: 1.2rem; color: var(--muted); margin-top: 0; }
+img { display: block; border: 1px solid var(--line); border-radius: .5rem; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: .15rem 1rem; }
+dt { color: var(--muted); }
+dd { margin: 0; }
+small { color: var(--muted); }
+ul.chars { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem 1rem; }
+ul.chars a { font-family: 'Nom Na Tong Supplement', 'Han-Nom Gothic Supplement', serif; font-size: 1.8rem; text-decoration: none; }
+[lang=vi] { font-family: 'Nom Na Tong Supplement', 'Han-Nom Gothic Supplement', serif; }

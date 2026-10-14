@@ -1,0 +1,14 @@
+# pages
+
+Static landing pages of the Chữ Nôm characters, published with GitHub Pages from `docs/` at https://qatt.org/pages/.
+
+- `docs/<HEX>/index.html` – one page per character (plain HTML, shared `docs/style.css`, no scripts)
+- `docs/index.html` – index of all characters, `docs/sitemap.xml` – sitemap
+- `tools/generate.py` – generates all of the above from `dict.csv` and `js/glyph_relations.json` of [qtng/chunom](https://github.com/qtng/chunom)
+
+Regenerate (Python 3, no dependencies):
+
+    python3 tools/generate.py                                     # data from https://qatt.org/chunom/
+    python3 tools/generate.py --chunom ../chunom --assets ../chunom-assets   # from local checkouts
+
+Then commit `docs/`. Change the layout in `tools/generate.py` (`page()`), the look in `docs/style.css`.
