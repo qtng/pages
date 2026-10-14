@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generates the static landing pages of the characters: docs/<HEX>/index.html, docs/index.html (index), docs/sitemap.xml.
+"""Generates the static landing pages of the characters: docs/<HEX>/index.html, docs/index.html (index), docs/grade/<N>/index.html (lists), docs/sitemap.xml.
 
 The pages are plain HTML with the shared docs/style.css (no scripts). The data comes from the chunom repository:
 dict.csv and js/glyph_relations.json, read from a local checkout or, by default, from https://qatt.org/chunom/.
@@ -113,6 +113,50 @@ def page(ch):
     return '\n'.join(lines)
 
 
+# The lists of index.html of the dictionary: Grade 1 = the 100 most frequent entries (any level), Grades 2-4 = the levels without them
+rank = lambda r: int(r[5]) if len(r) > 5 and r[5].isdigit() else float('inf')
+key = lambda r: (r[1], r[0])
+
+
+def ranked(entries):
+    seen = set()
+    return [r for r in sorted(entries, key=rank) if key(r) not in seen and not seen.add(key(r))]
+
+
+top100 = ranked(r for r in rows if rank(r) != float('inf'))[:100]
+in_top = {key(r) for r in top100}
+by_level = lambda *levels: ranked(r for r in rows if len(r) > 3 and r[3] in levels and key(r) not in in_top)
+GRADES = {
+    '1': ('Grade 1 Characters', 'The 100 most frequent Chữ Nôm words', top100),
+    '2': ('Grade 2 Characters', 'Frequent Chữ Nôm words of levels 1 and 2', by_level('1', '2')),
+    '3': ('Grade 3 Characters', 'Chữ Nôm words of level 3', by_level('3')),
+    '4': ('Grade 4 Characters', 'Chữ Nôm words of level 4', by_level('4')),
+    '0': ('Other Characters', 'Further Chữ Nôm words', by_level('0')),
+}
+
+
+def grade_page(number):
+    heading, text, entries = GRADES[number]
+    title = f'{heading} - {text} - {SITE_NAME}'
+    description = f'{text}: {len(entries)} entries with readings and meanings. ' + ', '.join(f'{r[1]} {r[0]}' for r in entries[:12])
+    nav = ' · '.join(f'<a href="../{n}/">{esc(GRADES[n][0].replace(" Characters", ""))}</a>' if n != number else f'<b>{esc(GRADES[n][0].replace(" Characters", ""))}</b>' for n in GRADES)
+    items = []
+    for r in entries:
+        nom = ''.join(f'<a href="../../{hexcode(c)}/">{esc(c)}</a>' if c in by_char else esc(c) for c in r[1])
+        items.append(f'<li><span lang="vi">{nom}</span> <b>{esc(r[0])}</b> – {esc(r[2])}</li>')
+    return '\n'.join([
+        '<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        f'<title>{esc(title)}</title>', f'<meta name="description" content="{esc(description)}">',
+        '<meta name="robots" content="index,follow">', f'<link rel="canonical" href="{BASE}/grade/{number}/">',
+        f'<meta property="og:type" content="website"><meta property="og:site_name" content="{SITE_NAME}">',
+        f'<meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}">',
+        '<link rel="stylesheet" href="../../style.css">', '</head>', '<body>',
+        f'<nav><a href="../../">Chữ Nôm characters</a> · <a href="{SITE}/chunom/">Dictionary</a></nav>', '<main>',
+        f'<h1 class="list">{esc(heading)}</h1>', f'<p class="lead">{esc(text)} ({len(entries)} entries)</p>',
+        f'<p class="grades">{nav}</p>', '<ul class="words">', *items, '</ul>', '</main>', f'<footer>{SITE_NAME}</footer>', '</body>', '</html>', ''])
+
+
 def index():
     groups = {}
     for ch in chars:
@@ -125,7 +169,8 @@ def index():
         f'<meta name="description" content="{len(chars)} Chữ Nôm characters with readings, meanings, variants and example words.">',
         '<meta name="robots" content="index,follow">', f'<link rel="canonical" href="{BASE}/">',
         '<link rel="stylesheet" href="style.css">', '</head>', '<body>',
-        f'<nav><a href="{SITE}/chunom/">Dictionary</a></nav>', '<main>', '<h1>Chữ Nôm characters</h1>']
+        f'<nav><a href="{SITE}/chunom/">Dictionary</a></nav>', '<main>', '<h1 class="list">Chữ Nôm characters</h1>',
+        '<p class="grades">' + ' · '.join(f'<a href="grade/{n}/">{esc(g[0])}</a>' for n, g in GRADES.items()) + '</p>']
     for level in sorted(groups, key=lambda l: (l == '0', l)):
         lines += [f'<h2>{"Grade " + level if level != "0" else "Other characters"}</h2>', '<ul class="chars">']
         lines += [f'<li><a href="{hexcode(ch)}/" lang="vi">{esc(ch)}</a> <small>{esc(by_char[ch][0][0])}</small></li>' for ch in groups[level]]
@@ -141,7 +186,11 @@ for ch in chars:
     (DOCS / hexcode(ch)).mkdir(parents=True, exist_ok=True)
     (DOCS / hexcode(ch) / 'index.html').write_text(page(ch), encoding='utf-8')
 (DOCS / 'index.html').write_text(index(), encoding='utf-8')
-urls = [f'{BASE}/'] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
+shutil.rmtree(DOCS / 'grade', ignore_errors=True)
+for number in GRADES:
+    (DOCS / 'grade' / number).mkdir(parents=True)
+    (DOCS / 'grade' / number / 'index.html').write_text(grade_page(number), encoding='utf-8')
+urls = [f'{BASE}/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
 (DOCS / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                   + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 print(f'{len(chars)} pages written to {DOCS}')

@@ -16,3 +16,8 @@ small { color: var(--muted); }
 ul.chars { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem 1rem; }
 ul.chars a { font-family: 'Nom Na Tong Supplement', 'Han-Nom Gothic Supplement', serif; font-size: 1.8rem; text-decoration: none; }
 [lang=vi] { font-family: 'Nom Na Tong Supplement', 'Han-Nom Gothic Supplement', serif; }
+h1.list { font-family: Georgia, serif; font-size: 2rem; }
+.grades { color: var(--muted); }
+ul.words { padding-left: 0; list-style: none; columns: 2 20rem; }
+ul.words li { break-inside: avoid; margin-bottom: .35rem; }
+ul.words a { text-decoration: none; }
