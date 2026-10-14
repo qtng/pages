@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generates the static landing pages of the characters: docs/<HEX>/index.html, docs/index.html (index), docs/sitemap.xml, docs/robots.txt.
+"""Generates the static landing pages of the characters: docs/<HEX>/index.html, docs/index.html (index), docs/sitemap.xml.
 
 The pages are plain HTML with the shared docs/style.css (no scripts). The data comes from the chunom repository:
 dict.csv and js/glyph_relations.json, read from a local checkout or, by default, from https://qatt.org/chunom/.
