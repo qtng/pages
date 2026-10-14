@@ -8,7 +8,7 @@ dict.csv and js/glyph_relations.json, read from a local checkout or, by default,
   python3 tools/generate.py --chunom ../chunom        data from a local checkout of qtng/chunom
   python3 tools/generate.py --assets ../chunom-assets only link images that exist in a local checkout of qtng/chunom-assets
 
-The generated folders (docs/<HEX>/, docs/grade/, sitemap.xml, index.html) are overwritten; style.css and hand-written pages such as docs/pa/ stay.
+The generated folders (docs/<HEX>/, docs/grade/, sitemap.xml, index.html) are overwritten; style.css and the hand-written pages (docs/pa/, docs/fonts/, docs/links/) stay. REDIRECTS lists the old addresses that only forward.
 """
 import argparse, csv, re, html, io, json, shutil, urllib.parse, urllib.request
 from pathlib import Path
@@ -19,7 +19,17 @@ APP = f'{SITE}/chunom/index.html'         # the dictionary with the popup (?deta
 IMAGES = f'{SITE}/chunom-assets/generated'   # <size>/<HEX>.webp: many characters are in no font, so they are shown as images like in the dictionary
 SITE_NAME = 'Chunom.org'
 KINDS = {'v': 'Variant', 's': 'Simplified', 't': 'Traditional'}
+# Old addresses of chunom.org (/pages/<name>/) that now live elsewhere: name -> target (relative to https://qatt.org/)
+REDIRECTS = {
+    'genibrel': 'chunom/dict/genibrel.html',
+    'bonet': 'chunom/dict/bonet.html',
+    'ime': 'chunom/writer.html',
+    'imepad': 'chunom/writer.html',
+    'moses': 'chunom/translate.html',
+    'standard': 'pages/grade/1/',
+}
 ROOT = Path(__file__).resolve().parent.parent
+_unused = Path(__file__).resolve().parent.parent
 DOCS = ROOT / 'docs'
 
 ap = argparse.ArgumentParser()
@@ -175,6 +185,15 @@ def grade_page(number):
         f'<p class="grades">{nav}</p>', '<ul class="words">', *items, '</ul>', '</main>', f'<footer>{SITE_NAME}</footer>', '</body>', '</html>', ''])
 
 
+def redirect_page(target):
+    url = f'{SITE}/{target}'
+    return '\n'.join([
+        '<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">', f'<title>Moved to {esc(url)}</title>',
+        f'<link rel="canonical" href="{url}">', f'<meta http-equiv="refresh" content="0; url={url}">', NAV_HEAD[0],
+        f'<script>location.replace({json.dumps(url)});</script>', '</head>', '<body>',
+        f'<p>This page has moved to <a href="{url}">{esc(url)}</a>.</p>', '</body>', '</html>', ''])
+
+
 def index():
     groups = {}
     for ch in chars:
@@ -188,7 +207,7 @@ def index():
         '<meta name="robots" content="index,follow">', f'<link rel="canonical" href="{BASE}/">',
         *NAV_HEAD, '<link rel="stylesheet" href="style.css">', NAV_SCRIPT, '</head>', '<body>',
         '<main>', '<h1 class="list">Chữ Nôm characters</h1>',
-        '<p class="grades">' + ' · '.join(f'<a href="grade/{n}/">{esc(g[0])}</a>' for n, g in GRADES.items()) + ' · <a href="pa/">Phonetic Annotation</a> · <a href="fonts/">Fonts</a></p>']
+        '<p class="grades">' + ' · '.join(f'<a href="grade/{n}/">{esc(g[0])}</a>' for n, g in GRADES.items()) + ' · <a href="pa/">Phonetic Annotation</a> · <a href="fonts/">Fonts</a> · <a href="links/">Links</a></p>']
     for level in sorted(groups, key=lambda l: (l == '0', l)):
         lines += [f'<h2>{"Grade " + level if level != "0" else "Other characters"}</h2>', '<ul class="chars">']
         lines += [f'<li>{glyph(ch, hexcode(ch) + "/")} <small>{esc(by_char[ch][0][0])}</small></li>' for ch in groups[level]]
@@ -204,11 +223,14 @@ for ch in chars:
     (DOCS / hexcode(ch)).mkdir(parents=True, exist_ok=True)
     (DOCS / hexcode(ch) / 'index.html').write_text(page(ch), encoding='utf-8')
 (DOCS / 'index.html').write_text(index(), encoding='utf-8')
+for name, target in REDIRECTS.items():
+    (DOCS / name).mkdir(parents=True, exist_ok=True)
+    (DOCS / name / 'index.html').write_text(redirect_page(target), encoding='utf-8')
 shutil.rmtree(DOCS / 'grade', ignore_errors=True)
 for number in GRADES:
     (DOCS / 'grade' / number).mkdir(parents=True)
     (DOCS / 'grade' / number / 'index.html').write_text(grade_page(number), encoding='utf-8')
-urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
+urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/', f'{BASE}/links/'] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
 (DOCS / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                   + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 print(f'{len(chars)} pages written to {DOCS}')
