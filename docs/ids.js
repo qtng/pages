@@ -92,7 +92,7 @@
       render(uniq[ids].tree, 'ids' + n).then(function (svg) {
         uniq[ids].spans.forEach(function (sp) {
           sp.innerHTML = svg;
-          sp.classList.add('drawn');
+          sp.classList.add('drawn', 'text-danger');
           sp.setAttribute('role', 'img');
           sp.setAttribute('aria-label', ids);
         });
