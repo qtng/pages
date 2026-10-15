@@ -76,7 +76,7 @@
       var p = new Kage.Polygons();
       k.makeGlyph(p, top);
       var svg = p.generateSVG().replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
-      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="1em" height="1em" style="vertical-align:-.12em" fill="currentColor">' + svg + '</svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="1.3em" height="1.3em" style="vertical-align:-.3em" fill="currentColor">' + svg + '</svg>';
     });
   }
 

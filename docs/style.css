@@ -38,4 +38,3 @@ ul.texts a, ol.texts a { text-decoration: none; }
 .lines .muted { color: var(--muted); font-size: .9rem; }
 .ids { background: #fff1c2; outline: 1px dashed var(--accent); border-radius: .2em; padding: 0 .1em; }
 .ids:not(.sub) { font-size: .7em; font-family: monospace; }
-.ids.drawn { background: none; outline: none; padding: 0; }
