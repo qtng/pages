@@ -23,3 +23,18 @@ ul.words { padding-left: 0; list-style: none; columns: 2 20rem; }
 ul.words li { break-inside: avoid; margin-bottom: .35rem; display: flex; align-items: center; gap: .6rem; }
 ul.words li > span[lang] { flex: none; white-space: nowrap; }
 ul.words a { text-decoration: none; }
+/* texts (docs/shelf/) */
+.en { color: var(--muted); margin-top: -.5rem; }
+.notes { white-space: pre-line; color: var(--muted); font-size: .9rem; overflow-wrap: anywhere; }
+dd { overflow-wrap: anywhere; }
+ul.texts, ol.texts { padding-left: 0; list-style: none; }
+ul.texts li, ol.texts li { margin-bottom: .9rem; }
+ul.texts a, ol.texts a { text-decoration: none; }
+.nt, .nom { font-family: 'Nom Na Tong Supplement', 'Han-Nom Gothic Supplement', serif; font-size: 1.5rem; }
+.chnav { display: flex; justify-content: space-between; gap: 1rem; }
+.lines .ln { display: flex; gap: .75rem; margin: .6rem 0; }
+.lines code { flex: none; min-width: 2.2rem; color: var(--muted); text-align: right; padding-top: .35rem; }
+.lines .nom { font-size: 1.6rem; line-height: 1.4; }
+.lines .muted { color: var(--muted); font-size: .9rem; }
+.ids { background: #fff1c2; outline: 1px dashed var(--accent); border-radius: .2em; padding: 0 .1em; }
+.ids:not(.sub) { font-size: .7em; font-family: monospace; }

@@ -1,6 +1,6 @@
 # qtng/pages
 
-Static landing pages for search engines and old links: one page per character (`docs/<HEX>/`), the grade lists (`docs/grade/<N>/`), hand-written pages (`docs/pa/`, `docs/pa-editor/`, `docs/fonts/`, `docs/links/`), redirect stubs for moved pages (`REDIRECTS` in `tools/generate.py`), `docs/site.js` (loaded first by every page; empty, a central place for site-wide behaviour such as redirects), `docs/style.css`, `docs/sitemap.xml`.
+Static landing pages for search engines and old links: one page per character (`docs/<HEX>/`), the grade lists (`docs/grade/<N>/`), hand-written pages (`docs/pa/`, `docs/pa-editor/`, `docs/fonts/`, `docs/links/`, `docs/shelf/` = texts of the old Bookshelf corpus, 22 documents with chapters, imported once from the old site), redirect stubs for moved pages (`REDIRECTS` in `tools/generate.py`), `docs/site.js` (loaded first by every page; empty, a central place for site-wide behaviour such as redirects), `docs/style.css`, `docs/sitemap.xml`.
 GitHub Pages publishes the folder `docs/` (only `/` or `/docs` can be chosen) at `/pages/` of the Chunom site. Everything under `docs/<HEX>/`, `docs/grade/`, the index, the sitemap and the redirect stubs is **generated**: run `tools/generate.py` (see `README.md`) instead of editing them. The hand-written pages are edited directly.
 
 ## The sites and their four repositories
