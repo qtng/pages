@@ -1,6 +1,6 @@
 # pages
 
-Static landing pages of the Chữ Nôm characters, published with GitHub Pages from `docs/` at `<site>/pages/` (https://v2.chunom.org while testing, https://chunom.org when live).
+Static landing pages of the Chữ Nôm characters, published with GitHub Pages from `docs/` at `<site>/pages/` (https://chunom.org).
 
 - `docs/<HEX>/index.html` – one page per character (plain HTML, shared `docs/style.css`, no scripts)
 - `docs/index.html` – index of all characters, `docs/sitemap.xml` – sitemap
