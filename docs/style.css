@@ -36,5 +36,5 @@ ul.texts a, ol.texts a { text-decoration: none; }
 .lines code { flex: none; min-width: 2.2rem; color: var(--muted); text-align: right; padding-top: .35rem; }
 .lines .nom { font-size: 1.6rem; line-height: 1.4; }
 .lines .muted { color: var(--muted); font-size: .9rem; }
-.ids { font-size: .7em; border: 1px dashed var(--muted); padding: 0 .15em; font-family: monospace; }
-.sub { border-bottom: 1px dotted var(--accent); }
+.ids { background: #fff1c2; outline: 1px dashed var(--accent); border-radius: .2em; padding: 0 .1em; }
+.ids:not(.sub) { font-size: .7em; font-family: monospace; }
