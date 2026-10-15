@@ -2,7 +2,7 @@
 """Generates the static landing pages of the characters: docs/<HEX>/index.html, docs/index.html (index), docs/grade/<N>/index.html (lists), docs/sitemap.xml.
 
 The pages are plain HTML with the shared docs/style.css (no scripts). The data comes from the chunom repository:
-dict.csv and js/glyph_relations.json, read from a local checkout or, by default, from the site itself (--site, default https://v2.chunom.org).
+dict.csv and js/glyph_relations.json, read from a local checkout or, by default, from the site itself (--site, default https://chunom.org).
 
   python3 tools/generate.py                          data from the site (--site)
   python3 tools/generate.py --chunom ../chunom        data from a local checkout of qtng/chunom
@@ -31,7 +31,7 @@ _unused = Path(__file__).resolve().parent.parent
 DOCS = ROOT / 'docs'
 
 ap = argparse.ArgumentParser()
-ap.add_argument('--site', default='https://v2.chunom.org', help='address of the site, https://chunom.org when it is live (default: %(default)s)')
+ap.add_argument('--site', default='https://chunom.org', help='address of the site (default: %(default)s)')
 ap.add_argument('--chunom', help='local checkout of qtng/chunom (default: download from the site)')
 ap.add_argument('--assets', help='local checkout of qtng/chunom-assets (default: assume every image exists)')
 args = ap.parse_args()
