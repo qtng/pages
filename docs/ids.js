@@ -76,7 +76,7 @@
       var p = new Kage.Polygons();
       k.makeGlyph(p, top);
       var svg = p.generateSVG().replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
-      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="1em" height="1em" style="vertical-align:-.12em" fill="currentColor">' + svg + '</svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="1.3em" height="1.3em" style="vertical-align:-.3em" fill="currentColor">' + svg + '</svg>';
     });
   }
 
@@ -92,7 +92,7 @@
       render(uniq[ids].tree, 'ids' + n).then(function (svg) {
         uniq[ids].spans.forEach(function (sp) {
           sp.innerHTML = svg;
-          sp.classList.add('drawn');
+          sp.classList.add('drawn', 'text-danger');
           sp.setAttribute('role', 'img');
           sp.setAttribute('aria-label', ids);
         });
