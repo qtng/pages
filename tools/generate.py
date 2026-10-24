@@ -29,6 +29,8 @@ REDIRECTS = {
 # Works of the old Bookshelf (/pages/shelf/<id>/) that have a page in the new one (/chunom/shelf/<id>/): the old page only forwards
 # (canonical + refresh) and is left out of the sitemap. Works not listed here stay as they are.
 SHELF_MOVED = [1, 4, 5, 6, 7, 8, 9, 11, 12, 19, 25, 27, 39, 41, 42, 43, 53, 69, 128, 136]
+# Chapters of the old site were works of their own (/pages/shelf/<old id>/); in the new Bookshelf they are pages of a work: old id -> (work, page), forwarded to /chunom/shelf/<work>/#p<page>
+SHELF_CHAPTERS = {13: (12, 1), 16: (12, 2), 17: (12, 3), 18: (12, 4), 28: (27, 1), 29: (27, 2), 30: (27, 3), 31: (27, 4), 32: (27, 5), 33: (27, 6), 34: (27, 7), 44: (41, 1), 46: (41, 2), 52: (41, 3), 58: (41, 4), 59: (41, 5), 60: (41, 6), 62: (41, 7), 63: (41, 8), 64: (41, 9), 68: (41, 10), 70: (69, 1), 71: (69, 3), 75: (41, 11), 76: (41, 12), 77: (41, 13), 78: (41, 14), 79: (41, 15), 87: (69, 2), 88: (53, 1), 89: (53, 2), 90: (69, 4), 91: (69, 5), 92: (69, 6), 93: (69, 7), 94: (69, 8), 95: (69, 9), 96: (69, 10), 97: (69, 14), 98: (69, 11), 99: (69, 12), 100: (69, 13), 101: (53, 3), 102: (53, 4), 103: (53, 5), 104: (43, 1), 105: (43, 2), 106: (43, 3), 107: (43, 4), 108: (43, 5), 109: (43, 6), 110: (43, 7), 111: (43, 8), 112: (43, 9), 113: (53, 6), 114: (69, 15), 115: (53, 7), 116: (69, 16), 117: (69, 17), 118: (69, 18), 119: (53, 8), 120: (42, 1), 121: (42, 2), 122: (69, 19), 123: (69, 20), 124: (42, 3), 125: (42, 4), 129: (128, 1), 130: (128, 2), 131: (128, 3), 132: (128, 4), 133: (128, 5), 134: (128, 6), 135: (128, 7)}
 ROOT = Path(__file__).resolve().parent.parent
 _unused = Path(__file__).resolve().parent.parent
 DOCS = ROOT / 'docs'
@@ -195,7 +197,7 @@ def redirect_page(target):
     url = f'{SITE}/{target}'
     return '\n'.join([
         '<!doctype html>', '<html lang="en">', '<head>', '<meta charset="utf-8">', f'<title>Moved to {esc(url)}</title>',
-        f'<link rel="canonical" href="{url}">', f'<meta http-equiv="refresh" content="0; url={url}">', NAV_HEAD[0],
+        f'<link rel="canonical" href="{url.split("#")[0]}">', f'<meta http-equiv="refresh" content="0; url={url}">', NAV_HEAD[0],
         f'<script>location.replace({json.dumps(url)});</script>', '</head>', '<body>',
         f'<p>This page has moved to <a href="{url}">{esc(url)}</a>.</p>', '</body>', '</html>', ''])
 
@@ -232,13 +234,15 @@ for ch in chars:
 for name, target in REDIRECTS.items():
     (DOCS / name).mkdir(parents=True, exist_ok=True)
     (DOCS / name / 'index.html').write_text(redirect_page(target), encoding='utf-8')
+for number, (work, page) in SHELF_CHAPTERS.items():
+    (DOCS / 'shelf' / str(number) / 'index.html').write_text(redirect_page(f'chunom/shelf/{work}/#p{page}'), encoding='utf-8')
 for number in SHELF_MOVED:
     (DOCS / 'shelf' / str(number) / 'index.html').write_text(redirect_page(f'chunom/shelf/{number}/'), encoding='utf-8')
 shutil.rmtree(DOCS / 'grade', ignore_errors=True)
 for number in GRADES:
     (DOCS / 'grade' / number).mkdir(parents=True)
     (DOCS / 'grade' / number / 'index.html').write_text(grade_page(number), encoding='utf-8')
-urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/', f'{BASE}/links/', f'{BASE}/pa-editor/', f'{BASE}/shelf/'] + [f'{BASE}/shelf/{q.parent.name}/' for q in sorted((DOCS / 'shelf').glob('*/index.html'), key=lambda q: int(q.parent.name)) if int(q.parent.name) not in SHELF_MOVED] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
+urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/', f'{BASE}/links/', f'{BASE}/pa-editor/', f'{BASE}/shelf/'] + [f'{BASE}/shelf/{q.parent.name}/' for q in sorted((DOCS / 'shelf').glob('*/index.html'), key=lambda q: int(q.parent.name)) if int(q.parent.name) not in SHELF_MOVED and int(q.parent.name) not in SHELF_CHAPTERS] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
 (DOCS / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                   + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 # the hand-written pages hold the address of the site in canonical, og:url and a bookmarklet: set it to --site
