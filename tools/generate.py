@@ -26,6 +26,9 @@ REDIRECTS = {
     'moses': 'chunom/translate.html',
     'standard': 'pages/grade/1/',
 }
+# Works of the old Bookshelf (/pages/shelf/<id>/) that have a page in the new one (/chunom/shelf/<id>/): the old page only forwards
+# (canonical + refresh) and is left out of the sitemap. Works not listed here stay as they are.
+SHELF_MOVED = [1, 4, 5, 6, 7, 8, 9, 11, 12, 19, 25, 27, 39, 41, 42, 43, 53, 69, 128, 136]
 ROOT = Path(__file__).resolve().parent.parent
 _unused = Path(__file__).resolve().parent.parent
 DOCS = ROOT / 'docs'
@@ -229,11 +232,13 @@ for ch in chars:
 for name, target in REDIRECTS.items():
     (DOCS / name).mkdir(parents=True, exist_ok=True)
     (DOCS / name / 'index.html').write_text(redirect_page(target), encoding='utf-8')
+for number in SHELF_MOVED:
+    (DOCS / 'shelf' / str(number) / 'index.html').write_text(redirect_page(f'chunom/shelf/{number}/'), encoding='utf-8')
 shutil.rmtree(DOCS / 'grade', ignore_errors=True)
 for number in GRADES:
     (DOCS / 'grade' / number).mkdir(parents=True)
     (DOCS / 'grade' / number / 'index.html').write_text(grade_page(number), encoding='utf-8')
-urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/', f'{BASE}/links/', f'{BASE}/pa-editor/', f'{BASE}/shelf/'] + [f'{BASE}/shelf/{q.parent.name}/' for q in sorted((DOCS / 'shelf').glob('*/index.html'), key=lambda q: int(q.parent.name))] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
+urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/', f'{BASE}/links/', f'{BASE}/pa-editor/', f'{BASE}/shelf/'] + [f'{BASE}/shelf/{q.parent.name}/' for q in sorted((DOCS / 'shelf').glob('*/index.html'), key=lambda q: int(q.parent.name)) if int(q.parent.name) not in SHELF_MOVED] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
 (DOCS / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                   + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 # the hand-written pages hold the address of the site in canonical, og:url and a bookmarklet: set it to --site
