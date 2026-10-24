@@ -1,7 +1,7 @@
 # qtng/pages
 
-Static landing pages for search engines and old links: one page per character (`docs/<HEX>/`), the grade lists (`docs/grade/<N>/`), hand-written pages (`docs/pa/`, `docs/pa-editor/`, `docs/fonts/`, `docs/links/`, `docs/shelf/` = texts of the old Bookshelf corpus, 22 documents with chapters, imported once from the old site), redirect stubs for moved pages (`REDIRECTS` in `tools/generate.py`), `docs/site.js` (loaded first by every page; empty, a central place for site-wide behaviour such as redirects), `docs/style.css`, `docs/sitemap.xml`.
-GitHub Pages publishes the folder `docs/` (only `/` or `/docs` can be chosen) at `/pages/` of the Chunom site. Everything under `docs/<HEX>/`, `docs/grade/`, the index, the sitemap and the redirect stubs is **generated**: run `tools/generate.py` (see `README.md`) instead of editing them. The hand-written pages are edited directly.
+Static landing pages for search engines and old links: one page per character (`docs/<HEX>/`), the grade lists (`docs/grade/<N>/`), hand-written pages (`docs/pa/`, `docs/pa-editor/`, `docs/fonts/`, `docs/links/`, `docs/shelf/` = texts of the old Bookshelf corpus, 22 documents with chapters, imported once from the old site), redirect stubs for moved pages (`REDIRECTS` in `tools/generate.py`), `docs/site.js` (loaded first by every page; empty, a central place for site-wide behaviour such as redirects), `docs/style.css`.
+GitHub Pages publishes the folder `docs/` (only `/` or `/docs` can be chosen) at `/pages/` of the Chunom site. Everything under `docs/<HEX>/`, `docs/grade/`, the index and the redirect stubs is **generated**: run `tools/generate.py` (see `README.md`) instead of editing them. The hand-written pages are edited directly.
 
 ## The sites and their four repositories
 
@@ -30,7 +30,7 @@ Old addresses that must keep working: `chunom.org/pages/<HEX>/`, `chunom.org/pag
 - **Inside qatt.org** use **root paths** without any folder prefix: `/js/navigation.js`, `/editor.html`, `/img/logo.svg` (the old prefix `/qatt/` no longer exists).
 - **From qatt.org to the Chunom site** use **absolute** URLs with the domain: `https://chunom.org/chunom/js/ime.js`, `https://chunom.org/chunom-assets/fonts/fonts.css`.
 - **Scripts that other pages load across sites** (`chunom/js/detail.js`, `ime.js`, `practice.js`) must not assume their own origin: they derive their location from `document.currentScript.src` (e.g. `new URL('../../', BASE)` = root of the Chunom site).
-- Canonical links, `og:` tags and the sitemap need absolute URLs; `qtng/pages` writes them from `tools/generate.py --site …`.
+- Canonical links and `og:` tags need absolute URLs; `qtng/pages` writes them from `tools/generate.py --site …`.
 - There is **one `js/navigation.js`** (menu bar, brand, bottom bar on phones, and the translation `Lang`), in `qtng/qatt`, served at `https://qatt.org/js/navigation.js`. The pages of the Chunom site load it from there with `<script src="https://qatt.org/js/navigation.js"></script>` early in `<head>` (a normal script, not `defer`, so that the page is translated while it is parsed). It picks brand, logo, icons, colours and the own block of the menu from the address of the page (`chunom.org`, `chunom.org` or the folders `/chunom/`, `/pages/`, `/chunom-assets/` = Chunom site, else qatt.org); the constants `CHUNOM_SITE` and `QATT_SITE` hold the absolute addresses for the links to the other site. The Chunom logo and icons are in `chunom/img/`.
 - The Supabase login (decks, practice) is stored in `localStorage`, i.e. **per origin**: a user signed in on `qatt.org` is not signed in on the Chunom site.
 - The site is plain HTML and JavaScript with Bootstrap 5.3, no build step. Local preview of the real URLs is not possible; to test, serve the repos under mocked hosts (Playwright `page.route` mapping `https://chunom.org/chunom/*`, `/chunom-assets/*`, `/pages/*` and `https://qatt.org/*` to the checkouts) and look for 404s and console errors.
@@ -57,4 +57,4 @@ Rules when you write or change pages:
 2. In `qtng/qatt` the domain in `js/navigation.js` constant `CHUNOM_SITE`, `404.html` constant `CHUNOM_SITE`, `check.html`, `editor.html`, `type.html`, `practice/qatt.html`, `admin/index.html` and the default `PROMPTS_URL` / allowed origins of the function `translate`.
 3. In `qtng/pages` `python3 tools/generate.py --site https://chunom.org` (add `--chunom ../chunom --assets ../chunom-assets` for local checkouts) and commit `docs/`.
 4. Nothing to change in `qtng/chunom` and `qtng/chunom-assets` (root-relative paths).
-5. Search Console: verify `chunom.org`, submit `https://chunom.org/pages/sitemap.xml`.
+5. Search Console: verify `chunom.org`, submit `https://chunom.org/sitemap.xml` (the one sitemap of chunom.org, in `qtng/qtng.github.io`).

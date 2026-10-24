@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generates the static landing pages of the characters: docs/<HEX>/index.html, docs/index.html (index), docs/grade/<N>/index.html (lists), docs/sitemap.xml.
+"""Generates the static landing pages of the characters: docs/<HEX>/index.html, docs/index.html (index), docs/grade/<N>/index.html (lists).
 
 The pages are plain HTML with the shared docs/style.css (no scripts). The data comes from the chunom repository:
 dict.csv and js/glyph_relations.json, read from a local checkout or, by default, from the site itself (--site, default https://chunom.org).
@@ -8,7 +8,7 @@ dict.csv and js/glyph_relations.json, read from a local checkout or, by default,
   python3 tools/generate.py --chunom ../chunom        data from a local checkout of qtng/chunom
   python3 tools/generate.py --assets ../chunom-assets only link images that exist in a local checkout of qtng/chunom-assets
 
-The generated folders (docs/<HEX>/, docs/grade/, sitemap.xml, index.html) are overwritten; style.css and the hand-written pages (docs/pa/, docs/pa-editor/, docs/fonts/, docs/links/, docs/shelf/) stay. REDIRECTS lists the old addresses that only forward.
+The generated folders (docs/<HEX>/, docs/grade/, index.html) are overwritten; style.css and the hand-written pages (docs/pa/, docs/pa-editor/, docs/fonts/, docs/links/, docs/shelf/) stay. REDIRECTS lists the old addresses that only forward.
 """
 import argparse, csv, re, html, io, json, shutil, urllib.parse, urllib.request
 from pathlib import Path
@@ -35,7 +35,7 @@ ap.add_argument('--site', default='https://chunom.org', help='address of the sit
 ap.add_argument('--chunom', help='local checkout of qtng/chunom (default: download from the site)')
 ap.add_argument('--assets', help='local checkout of qtng/chunom-assets (default: assume every image exists)')
 args = ap.parse_args()
-SITE = args.site.rstrip('/')               # the address of the site: canonicals, og:image and the sitemap need it; everything else is root-relative
+SITE = args.site.rstrip('/')               # the address of the site: canonicals and og:image need it; everything else is root-relative
 BASE = f'{SITE}/pages'                     # where docs/ is published
 APP = '/chunom/index.html'                 # the dictionary with the popup (?detail=)
 IMAGES = '/chunom-assets/generated'        # <size>/<HEX>.webp: many characters are in no font, so they are shown as images like in the dictionary
@@ -233,9 +233,6 @@ shutil.rmtree(DOCS / 'grade', ignore_errors=True)
 for number in GRADES:
     (DOCS / 'grade' / number).mkdir(parents=True)
     (DOCS / 'grade' / number / 'index.html').write_text(grade_page(number), encoding='utf-8')
-urls = [f'{BASE}/', f'{BASE}/pa/', f'{BASE}/fonts/', f'{BASE}/links/', f'{BASE}/pa-editor/', f'{BASE}/shelf/'] + [f'{BASE}/shelf/{q.parent.name}/' for q in sorted((DOCS / 'shelf').glob('*/index.html'), key=lambda q: int(q.parent.name))] + [f'{BASE}/grade/{n}/' for n in GRADES] + [f'{BASE}/{hexcode(ch)}/' for ch in chars]
-(DOCS / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-                                  + ''.join(f'<url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 # the hand-written pages hold the address of the site in canonical, og:url and a bookmarklet: set it to --site
 for path in [DOCS / page / 'index.html' for page in ('pa', 'pa-editor', 'fonts', 'links')] + sorted((DOCS / 'shelf').glob('**/index.html')):
     text = path.read_text(encoding='utf-8')
