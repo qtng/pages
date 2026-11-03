@@ -1,0 +1,16 @@
+/* The Chữ Nôm fonts of these archived pages (the files are in /chunom-assets/fonts/). The pages of the Chunom site and of qatt.org use the CJK font --font-cjk of
+   https://qatt.org/css/site.css (QATT Pen, defined by js/fonts.js) and do not load this file. */
+@font-face {
+  font-family: 'NomKhai-Supplement';
+  src: local('__'), url('/chunom-assets/fonts/nomkhai-supplement.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Han-Nom Gothic Supplement';
+  src: local('Han-Nom Gothic'), url('/chunom-assets/fonts/hannom-gothic-supplement.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Nom Na Tong Supplement';
+  src: local('Nom Na Tong'), url('/chunom-assets/fonts/nomnatong-supplement.woff2') format('woff2');
+}
